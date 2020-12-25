@@ -57,7 +57,61 @@ class Model(object):
             self.model = model_class(**model_pars['model_pars'])
             if VERBOSE: log(model_class, self.model)
 
+"""
 
+###########################################
+    data, target = sklearn.datasets.load_breast_cancer(return_X_y=True)
+    dtrain = lgb.Dataset(data, label=target)
+
+    params = {
+        "objective": "binary",
+        "metric": "binary_logloss",
+        "verbosity": -1,
+        "boosting_type": "gbdt",
+    }
+
+    tuner = lgb.LightGBMTunerCV(
+        params, dtrain, verbose_eval=100, early_stopping_rounds=100, folds=KFold(n_splits=3)
+    )
+
+    tuner.run()
+
+    print("Best score:", tuner.best_score)
+    best_params = tuner.best_params
+    print("Best params:", best_params)
+    print("  Params: ")
+    for key, value in best_params.items():
+        print("    {}: {}".format(key, value))
+        
+        
+############################################        
+      data, target = sklearn.datasets.load_breast_cancer(return_X_y=True)
+    train_x, val_x, train_y, val_y = train_test_split(data, target, test_size=0.25)
+    dtrain = lgb.Dataset(train_x, label=train_y)
+    dval = lgb.Dataset(val_x, label=val_y)
+
+    params = {
+        "objective": "binary",
+        "metric": "binary_logloss",
+        "verbosity": -1,
+        "boosting_type": "gbdt",
+    }
+
+    model = lgb.train(
+        params, dtrain, valid_sets=[dtrain, dval], verbose_eval=100, early_stopping_rounds=100
+    )
+
+    prediction = np.rint(model.predict(val_x, num_iteration=model.best_iteration))
+    accuracy = accuracy_score(val_y, prediction)
+
+    best_params = model.params
+    print("Best params:", best_params)
+    print("  Accuracy = {}".format(accuracy))
+    print("  Params: ")
+    for key, value in best_params.items():
+        print("    {}: {}".format(key, value))      
+
+"""
 def fit(data_pars=None, compute_pars=None, out_pars=None, **kw):
     """
     """
@@ -67,7 +121,12 @@ def fit(data_pars=None, compute_pars=None, out_pars=None, **kw):
     if VERBOSE: log(Xtrain.shape, model.model)
 
     if "LGBM" in model.model_pars['model_class']:
-        model.model.fit(Xtrain, ytrain, eval_set=[(Xtest, ytest)], **compute_pars.get("compute_pars", {}))
+        dtrain = lgb.Dataset(train_x, label=train_y)
+        dval = lgb.Dataset(val_x, label=val_y)
+
+        model.model.(params, dtrain, valid_sets=[dtrain, dval],
+                                    **compute_pars.get("compute_pars", {}))
+
     else:
         model.model.fit(Xtrain, ytrain, **compute_pars.get("compute_pars", {}))
 
