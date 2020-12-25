@@ -176,9 +176,9 @@ def pd_coltext(df, col, pars={}):
     ###### Save and Export ##########################################################
     if 'path_features_store' in pars:
             save_features(dftext_svd_list_all, 'dftext_svd' + "-" + str(col), pars['path_features_store'])
-            # save(dftext_svd_list_all,  pars['path_pipeline_export'] + "/dftext_svd.pkl")
-            # save(dftext_tdidf_all,     pars['path_pipeline_export'] + "/dftext_tdidf.pkl" )
-            save(word_tokeep_dict_all,     pars['path_pipeline_export'] + "/word_tokeep_dict_all.pkl" )
+            # save(dftext_svd_list_all,  pars['path_pipeline'] + "/dftext_svd.pkl")
+            # save(dftext_tdidf_all,     pars['path_pipeline'] + "/dftext_tdidf.pkl" )
+            save(word_tokeep_dict_all,     pars['path_pipeline'] + "/word_tokeep_dict_all.pkl" )
      
     col_pars = {}
     col_pars['cols_new'] = {
@@ -220,7 +220,7 @@ def pd_filter_rows(df, col, pars):
 ##### Label processing   ##################################################################
 def pd_label_clean(df, col, pars):
     path_features_store = pars['path_features_store']
-    # path_pipeline_export = pars['path_pipeline_export']
+    # path_pipeline_export = pars['path_pipeline']
     coly = col=[0]
     y_norm_fun = None
     # Target coly processing, Normalization process  , customize by model
@@ -310,8 +310,8 @@ def pd_colnum_bin(df, col, pars):
     if 'path_features_store' in pars:
         scol = "_".join(col[:5])
         save_features(dfnum_bin, 'colnum_bin' + "-" + scol, pars['path_features_store'])
-        save(colnum_binmap,  pars['path_pipeline_export'] + "/colnum_binmap.pkl" )
-        save(colnum_bin,     pars['path_pipeline_export'] + "/colnum_bin.pkl" )
+        save(colnum_binmap,  pars['path_pipeline'] + "/colnum_binmap.pkl" )
+        save(colnum_bin,     pars['path_pipeline'] + "/colnum_bin.pkl" )
 
 
     col_pars = {}
@@ -341,7 +341,7 @@ def pd_colnum_binto_onehot(df, col=None, pars=None):
 
     if 'path_features_store' in pars :
         save_features(dfnum_hot, 'colnum_onehot', pars['path_features_store'])
-        save(colnum_onehot,  pars['path_pipeline_export'] + "/colnum_onehot.pkl" )
+        save(colnum_onehot,  pars['path_pipeline'] + "/colnum_onehot.pkl" )
 
     col_pars = {}
     col_pars['colnum_onehot'] = colnum_onehot
@@ -350,7 +350,6 @@ def pd_colnum_binto_onehot(df, col=None, pars=None):
      'colnum_onehot' :  colnum_onehot       ### list
     }
     return dfnum_hot, col_pars
-
 
 
 def pd_colcat_to_onehot(df, col=None, pars=None):
@@ -379,8 +378,8 @@ def pd_colcat_to_onehot(df, col=None, pars=None):
     if 'path_features_store' in pars :
         path_features_store = pars['path_features_store']
         save_features(dfcat_hot, 'colcat_onehot', path_features_store)
-        save(colcat_onehot,  pars['path_pipeline_export'] + "/colcat_onehot.pkl" )
-        save(colcat,         pars['path_pipeline_export'] + "/colcat.pkl" )
+        save(colcat_onehot,  pars['path_pipeline'] + "/colcat_onehot.pkl" )
+        save(colcat,         pars['path_pipeline'] + "/colcat.pkl" )
 
     col_pars = {}
     col_pars['colcat_onehot'] = colcat_onehot
@@ -395,25 +394,27 @@ def pd_colcat_to_onehot(df, col=None, pars=None):
 
 
 def pd_colcat_bin(df, col=None, pars=None):
-    # dfbum_bin = df[col]
-    path_pipeline = pars.get('path_pipeline', False)
+    """
+      colcat string to integer
+    """
+    path_pipeline  = pars.get('path_pipeline', False)
+    colcat         = col
+
+    log("#### Colcat to integer encoding #############################################")
     colcat_bin_map = load(f'{path_pipeline}/colcat_bin_map.pkl') if  path_pipeline else None
 
-    colcat = col
-    log("#### Colcat to integer encoding ")
     dfcat_bin, colcat_bin_map = util_feature.pd_colcat_toint(df[colcat], colname=colcat,
                                                             colcat_map=  colcat_bin_map ,
                                                             suffix="_int")
     colcat_bin = list(dfcat_bin.columns)
-    ##### Colcat processing   ################################################################
     colcat_map = util_feature.pd_colcat_mapping(df, colcat)
     log(df[colcat].dtypes, colcat_map)
-
+    ###################################################################################
 
     if 'path_features_store' in pars :
        save_features(dfcat_bin, 'dfcat_bin', pars['path_features_store'])
-       save(colcat_bin_map,  pars['path_pipeline_export'] + "/colcat_bin_map.pkl" )
-       save(colcat_bin,      pars['path_pipeline_export'] + "/colcat_bin.pkl" )
+       save(colcat_bin_map,  pars['path_pipeline'] + "/colcat_bin_map.pkl" )
+       save(colcat_bin,      pars['path_pipeline'] + "/colcat_bin.pkl" )
 
 
     col_pars = {}
@@ -459,8 +460,8 @@ def pd_colcross(df, col, pars):
 
     if 'path_features_store' in pars:
         save_features(dfcross_hot, 'colcross_onehot', pars['path_features_store'])
-        save(colcross_single_onehot_select, pars['path_pipeline_export'] + '/colcross_single_onehot_select.pkl')
-        save(colcross_pair,                 pars['path_pipeline_export'] + '/colcross_pair.pkl')
+        save(colcross_single_onehot_select, pars['path_pipeline'] + '/colcross_single_onehot_select.pkl')
+        save(colcross_pair,                 pars['path_pipeline'] + '/colcross_pair.pkl')
 
     col_pars = {}
     col_pars['colcross_pair'] = colcross_pair
@@ -475,23 +476,56 @@ def pd_coldate(df, col, pars):
     log("##### Coldate processing   #############################################################")
     from utils import util_date
     coldate = col
-    path_features_store = pars.get('path_features_store', None)
-
-    dfdate = None
+    dfdate  = None
     for coldate_i in coldate :
         dfdate_i =  util_date.pd_datestring_split( df[[coldate_i]] , coldate_i, fmt="auto", return_val= "split" )
-        dfdate  = pd.concat((dfdate, dfdate_i),axis=1)  if dfdate is not None else dfdate_i
-        if path_features_store is not None:
-            path_features_store = pars['path_features_store']
-            save_features(dfdate_i, 'dfdate_' + coldate_i, path_features_store)
-    if path_features_store is not None:
-        save_features(dfdate, 'dfdate', path_features_store)
+        dfdate   = pd.concat((dfdate, dfdate_i),axis=1)  if dfdate is not None else dfdate_i
+        # if 'path_features_store' in pars :
+        #    path_features_store = pars['path_features_store']
+        #    #save_features(dfdate_i, 'dfdate_' + coldate_i, path_features_store)
+
+    if 'path_features_store' in pars :
+        save_features(dfdate, 'dfdate', pars['path_features_store'])
+
     col_pars = {}
     col_pars['cols_new'] = {
         # 'colcross_single'     :  col ,    ###list
-        'dfdate': dfdate.columns.tolist()  ### list
+        'dfdate': list(dfdate.columns)  ### list
     }
     return dfdate, col_pars
+
+
+def pd_colcat_hash(df, col, pars):
+    """
+       MinHash Algo for category       
+       https://booking.ai/dont-be-tricked-by-the-hashing-trick-192a6aae3087
+
+    """
+    path_pipeline  = pars.get('path_pipeline', None)
+    colcat         = col
+
+    log("#### Colcat to Hash encoding #############################################")
+    from utils import util_text
+    pars_default =  {'n_component' : [4, 2], 'model_pretrain_dict' : None,}
+    pars_minhash = load(f'{path_pipeline}/colcat_minhash_pars.pkl') if  path_pipeline else pars_default
+    dfcat_bin, col_hash_model= util_text.pd_coltext_minhash(df[colcat], colcat,
+                                                            return_val="dataframe,param", **pars_minhash )
+    colcat_minhash = list(dfcat_bin.columns)
+    log(col_hash_model)
+    ###################################################################################
+    if 'path_features_store' in pars :
+       save_features(dfcat_bin, 'dfcat_minhash', pars['path_features_store'])
+       save(col_hash_model,  pars['path_pipeline'] + "/colcat_minhash_model.pkl" )
+       save(colcat_minhash,  pars['path_pipeline'] + "/colcat_minhash.pkl" )
+
+    col_pars = {}
+    col_pars['col_hash_model'] = col_hash_model
+    col_pars['cols_new'] = {
+     'colcat'     :  col ,               ### list
+     'colcat_minhahs' :  colcat_minhash  ### list
+    }
+    return dfcat_bin, col_pars
+
 
 
 def pd_coltext_universal_google(df, col, pars={}):
@@ -501,15 +535,14 @@ def pd_coltext_universal_google(df, col, pars={}):
     https://tfhub.dev/google/universal-sentence-encoder-multilingual/3
 
     #@title Setup Environment
-#latest Tensorflow that supports sentencepiece is 1.13.1
-!pip uninstall --quiet --yes tensorflow
-!pip install --quiet tensorflow-gpu==1.13.1
-!pip install --quiet tensorflow-hub
-!pip install --quiet bokeh
-pip install --quiet tf-sentencepiece, simpleneighbors
-!pip install --quiet simpleneighbors
-!pip install --quiet tqdm
-
+    #latest Tensorflow that supports sentencepiece is 1.13.1
+    !pip uninstall --quiet --yes tensorflow
+    !pip install --quiet tensorflow-gpu==1.13.1
+    !pip install --quiet tensorflow-hub
+    !pip install --quiet bokeh
+    pip install --quiet tf-sentencepiece, simpleneighbors
+    !pip install --quiet simpleneighbors
+    !pip install --quiet tqdm
 
     # df : dataframe
     # col : list of text colnum names
