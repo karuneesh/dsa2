@@ -495,7 +495,7 @@ def pd_coldate(df, col, pars):
     return dfdate, col_pars
 
 
-def pd_colcat_hash(df, col, pars):
+def pd_colcat_minhash(df, col, pars):
     """
        MinHash Algo for category       
        https://booking.ai/dont-be-tricked-by-the-hashing-trick-192a6aae3087

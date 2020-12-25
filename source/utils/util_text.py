@@ -23,20 +23,14 @@ feature_extraction.text.TfidfVectorizer([ÿ])  Convert a collection of raw docum
 
 
 """
-import copy
-import json
-import math
-import os
-import re
-import string
+import os, sys, math, json, copy,re ,string
 from collections import Counter, OrderedDict
-
 import numpy as np
 import pandas as pd
 import scipy as sci
-
 import nltk
 import sklearn as sk
+
 ########### Local Import #####################################################################
 from nltk.corpus import stopwords
 # Stemming and Lemmatizing
@@ -53,7 +47,12 @@ from sklearn.pipeline import Pipeline
 # import gensim
 
 
-# from bin.column_encoder import MinHashEncoder
+
+#### Add path for python import
+path1 = os.path.dirname(os.path.dirname(os.path.abspath(__file__))).replace("\\", "/") + "/"
+print(path1)
+sys.path.append( path1)
+from source.bin.column_encoder import MinHashEncoder
 
 
 print("os.getcwd", os.getcwd())
@@ -286,7 +285,7 @@ def pd_coltext_minhash(dfref, colname, n_component=2, model_pretrain_dict=None,
     :param return_val:
     :return:
     """
-    from bin.column_encoder import MinHashEncoder
+    from source.bin.column_encoder import MinHashEncoder
 
     df = dfref[colname]
     model_pretrain_dict = {} if model_pretrain_dict is None else model_pretrain_dict
